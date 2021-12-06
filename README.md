@@ -1,5 +1,8 @@
-# boxstarter
-A set of boxstarter scripts to help with getting systems up and running quickly
+# [boxstarter](https://boxstarter.org/)
+A set of [boxstarter](https://boxstarter.org/) scripts to help with getting systems up and running quickly.  
+
+***What is [boxstarter](https://boxstarter.org/)***
+Allows for Repeatable, reboot resilient windows environment installations made easy using Chocolatey packages. When its time to repave either bare metal or virtualized instances, locally or on a remote machine, Boxstarter can automate both trivial and highly complex installations.
 
 **Setting up chocolatey and boxstarter**
 ```
