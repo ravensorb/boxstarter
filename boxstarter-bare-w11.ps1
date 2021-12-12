@@ -74,7 +74,6 @@ if (Get-InstalledModule -Name PowerShellGet | Where-Object { $_.Version -le 2.2 
 # Windows features
 cinst TelnetClient -source windowsfeatures
 cinst NetFx3 -source windowsfeatures
-cinst Microsoft-Windows-Subsystem-Linux -source windowsfeatures
 
 # Remove unwanted Store apps
 Get-AppxPackage Facebook.Facebook | Remove-AppxPackage -ErrorAction SilentlyContinue
