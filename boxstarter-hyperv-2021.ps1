@@ -11,5 +11,7 @@ New-Item -Path "c:\temp" -ItemType directory -Force | Out-Null
 # Windows features
 Enable-WindowsOptionalFeature -Online -FeatureName NetFx3, Microsoft-Hyper-V-All
 
+cinst Microsoft-Windows-Subsystem-Linux -source windowsfeatures
+
 Install-WindowsUpdate -AcceptEula -GetUpdatesFromMS
 Enable-UAC
