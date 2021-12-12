@@ -115,8 +115,7 @@ cinst powershellhere-elevated $common
 
 cinst 7zip $common
 # cinst eartrumpet $common
-cinst git $common
-cinst hwinfo $common
+# cinst hwinfo $common
 cinst paint.net $common
 cinst pingplotter $common
 cinst notepadplusplus $common
