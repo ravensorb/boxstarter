@@ -1,5 +1,7 @@
 param(
    [string] $scriptUrl,
+   [string] $gitUserName,
+   [string] $gitToken,
    [switch] $enableAuth
 )
 # 1. Install Boxstarter and execute a specific package
@@ -9,7 +11,7 @@ iex "& { $(iwr 'https://raw.githubusercontent.com/ravensorb/boxstarter/main/inst
 if you are having issues with caching use the following (it avoids using the Invoke-WebRequest cache)
 iex "& { $(iwr 'https://raw.githubusercontent.com/ravensorb/boxstarter/main/install-boxstarter.ps1' -Headers @{"Cache-Control"="no-cache"} ) } -scriptUrl <URL TO RAW SCRIPT> -enableAuth"
 #>
-# 2. or if you want to use the default bootstrapper use the following collant
+# 2. or if you want to use the default bootstrapper use the following script (Note: it does not support accessing private github urls)
 <#
 . { iwr -useb http://boxstarter.org/bootstrapper.ps1 } | iex; get-boxstarter -Force; install-boxstarterpackage -PackgeName <URL TO RAW SCRIPT>
 #>
@@ -29,6 +31,15 @@ cinst boxstarter
 if (-Not ([string]::IsNullOrEmpty($scriptUrl))) {
     Write-Host "Downloading and executing script: $scriptUrl" -ForegroundColor Green
     Import-Module 'c:\ProgramData\Boxstarter\Boxstarter.Chocolatey\Boxstarter.Chocolatey.psd1'; 
+    
+    if (-Not ([string]::IsNullOrEmpty($gitToken))) {
+        $tempScript = "$Env:TEMP\boxstarter-install-script.ps1"
+        if (Test-Path $tempScript) { Remove-Item $tempScript -Force -ErrorAction SilentlyContinue }
+
+        Invoke-WebRequest -Uri $scriptUrl -OutFile $tempScript -Headers @{"Authorization"="Basic $([Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $gitUserName, $gitToken))))"}
+        
+        $scriptUrl = $tempScript
+    }
   
     if ($enableAuth.IsPresent) {
         Install-BoxstarterPackage -PackageName $scriptUrl -Credential (Get-Credential -Message "Local Admin Login" -UserName $env:USERNAME)
