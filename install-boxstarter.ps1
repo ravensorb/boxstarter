@@ -1,6 +1,6 @@
 param(
    [string] $scriptUrl,
-   [bool] $enableAuth = $false
+   [switch] $enableAuth
 )
 # 1. Install Chocolatey
 <#
@@ -20,11 +20,12 @@ choco feature enable -n=useRememberedArgumentsForUpgrades
 cinst boxstarter
 
 if (-Not ([string]::IsNullOrEmpty($scriptUrl))) {
-  Import-Module 'c:\ProgramData\Boxstarter\Boxstarter.Chocolatey\Boxstarter.Chocolatey.psd1'; 
+    Write-Host "Downloading and executing script: $scriptUrl" -ForegroundColor Green
+    Import-Module 'c:\ProgramData\Boxstarter\Boxstarter.Chocolatey\Boxstarter.Chocolatey.psd1'; 
   
-  if ($enableAuth) {
-    Install-BoxstarterPackage -PackageName $scriptUrl -Credential (Get-Credential -Message "Local Admin Login" -UserName $env:USERNAME)
-  } else {
-    Install-BoxstarterPackage -PackageName $scriptUrl
-  }
+    if ($enableAuth.IsPresent) {
+        Install-BoxstarterPackage -PackageName $scriptUrl -Credential (Get-Credential -Message "Local Admin Login" -UserName $env:USERNAME)
+    } else {
+        Install-BoxstarterPackage -PackageName $scriptUrl
+    }
 }
