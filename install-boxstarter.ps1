@@ -32,8 +32,8 @@ if (-Not ([string]::IsNullOrEmpty($scriptUrl))) {
     Write-Host "Downloading and executing script: $scriptUrl" -ForegroundColor Green
     Import-Module 'c:\ProgramData\Boxstarter\Boxstarter.Chocolatey\Boxstarter.Chocolatey.psd1'; 
     
-    if (-Not ([string]::IsNullOrEmpty($gitToken))) {
-        $tempScript = "$Env:TEMP\boxstarter-install-script.ps1"
+    if (-Not ([string]::IsNullOrEmpty($gitToken))) {        
+        $tempScript = "$([System.Environment]::GetEnvironmentVariable('TEMP','Machine'))\boxstarter-install-script.ps1"
         if (Test-Path $tempScript) { Remove-Item $tempScript -Force -ErrorAction SilentlyContinue }
 
         Invoke-WebRequest -Uri $scriptUrl -OutFile $tempScript -Headers @{"Authorization"="Basic $([Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $gitUserName, $gitToken))))"}
