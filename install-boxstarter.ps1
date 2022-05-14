@@ -2,9 +2,16 @@ param(
    [string] $scriptUrl,
    [switch] $enableAuth
 )
-# 1. Install Chocolatey
+# 1. Install Boxstarter and execute a specific package
 <#
-iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/ravensorb/boxstarter/main/install-boxstarter.ps1'))
+iex "& { $(iwr 'https://raw.githubusercontent.com/ravensorb/boxstarter/main/install-boxstarter.ps1'} ) } -scriptUrl <URL TO RAW SCRIPT> -enableAuth"
+
+if you are having issues with caching use the following (it avoids using the Invoke-WebRequest cache)
+iex "& { $(iwr 'https://raw.githubusercontent.com/ravensorb/boxstarter/main/install-boxstarter.ps1' -Headers @{"Cache-Control"="no-cache"} ) } -scriptUrl <URL TO RAW SCRIPT> -enableAuth"
+#>
+# 2. or if you want to use the default bootstrapper use the following collant
+<#
+. { iwr -useb http://boxstarter.org/bootstrapper.ps1 } | iex; get-boxstarter -Force; install-boxstarterpackage -PackgeName <URL TO RAW SCRIPT>
 #>
 Set-ExecutionPolicy RemoteSigned -Force
 
