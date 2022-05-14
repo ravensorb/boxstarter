@@ -4,6 +4,8 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercon
 #>
 Set-ExecutionPolicy RemoteSigned -Force
 
+Write-Host $args
+
 # Create empty profile (so profile-integration scripts have something to append to)
 if (-not (Test-Path $PROFILE)) { $directory = [IO.Path]::GetDirectoryName($PROFILE); if (-not (Test-Path $directory)) { Write-Host "Creating Profile Directory $directtory"; New-Item -ItemType Directory $directory | Out-Null }; "# Profile" > $PROFILE }
 
