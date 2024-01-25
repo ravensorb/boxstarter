@@ -68,12 +68,32 @@ if (Get-InstalledModule -Name PowerShellGet | Where-Object { $_.Version -le 2.2 
     #Invoke-Reboot
 }
 
+# https://github.com/felixrieseberg/windows-development-environment/blob/master/boxstarter
+# https://timdeschryver.dev/blog/how-i-have-set-up-my-new-windows-development-environment-in-2022#install-software-with-winget
 # Write-Host "Set-PSRepository"
 # Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -Force
 
+## No SMB1 - https://blogs.technet.microsoft.com/filecab/2016/09/16/stop-using-smb1/
+Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol
+
+## Terminal
+cinst -y microsoft-windows-terminal
+cinst -y oh-my-posh
+
+## Editors
+cinst vscode-insiders -y
+choco pin add -n=vscode
+choco pin add -n="vscode.install"
+
+## Git
+cinst git.install -y --params "'/NoShellIntegration /WindowsTerminalProfile /Symlinks /DefaultBranchName:main /Editor:VisualStudioCodeInsiders'"
+
+# Restart PowerShell / CMDer before moving on - or run
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+
 # Windows features
 cinst TelnetClient -source windowsfeatures
-cinst NetFx3 -source windowsfeatures
 
 # Remove unwanted Store apps
 Get-AppxPackage Facebook.Facebook | Remove-AppxPackage -ErrorAction SilentlyContinue
@@ -105,30 +125,36 @@ Get-AppxPackage -AllUser -Name Microsoft.MSPaint | Remove-AppxPackage -ErrorActi
 
 Write-Host "Temp: $($env:temp)"
 
+## PowerShell
 cinst powershell-core $common
 cinst powershellhere-elevated $common
 
+## Browsers
 # cinst microsoft-edge-insider-dev --pre  $common
 # cinst microsoft-edge $common
 # choco pin add -n=edge
 
+## Common
 cinst 7zip $common
-# cinst eartrumpet $common
-# cinst hwinfo $common
 cinst paint.net $common
 cinst pingplotter $common
-cinst notepadplusplus $common
 
 cinst rocolatey $common
-# cinst rss-builder $common
-# cinst mousewithoutborders $common
-# cinst slack $common
 
 cinst git $common
-cinst tortoisegit $common
+# cinst tortoisegit $common
 cinst windirstat $common
 cinst PDFXchangeEditor $common --params '"/NoDesktopShortcuts /NoUpdater"'
 
+refreshenv
+
+if (Test-PendingReboot) { Invoke-Reboot }
+
+## Basics
+cinst -y 7zip.install $common
+cinst -y sysinternals $common
+
+# Hardware Specific
 if ((get-wmiobject Win32_ComputerSystem).manufacturer -like "*Dell*") {
     cinst dellcommandupdate-uwp $common
 }
@@ -137,22 +163,23 @@ if ((get-wmiobject Win32_ComputerSystem).manufacturer -like "*Lenovo*") {
     cinst lenovo-thinkvantage-system-update $common
 }
 
-cinst office365business $common --params='/exclude:"Access Groove Lync"'
-#cinst microsoft-teams.install $common
-#choco pin add -n="microsoft-teams.install" $common
+## Office
+# cinst office365business $common --params='/exclude:"Access Groove Lync"'
+# cinst microsoft-teams.install $common
+# choco pin add -n="microsoft-teams.install" $common
 
 # Install-Module posh-git -AllowPrerelease -Force
 
+## Clean up
 Update-ExecutionPolicy RemoteSigned
 Set-WindowsExplorerOptions -EnableShowFileExtensions -EnableExpandToOpenFolder
 
-#PowerShell help
+## PowerShell help
 Update-Help -ErrorAction SilentlyContinue
-
-# No SMB1 - https://blogs.technet.microsoft.com/filecab/2016/09/16/stop-using-smb1/
-Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol
 
 Enable-RemoteDesktop
 
+## Windows Update
 Install-WindowsUpdate -AcceptEula -GetUpdatesFromMS
+
 Enable-UAC
