@@ -12,7 +12,7 @@ choco feature enable -n=useRememberedArgumentsForUpgrades
 
 # Copy chocolatey.license.xml to C:\ProgramData\chocolatey\license
 
-cinst boxstarter
+choco install boxstarter
 
 #>
 # 2. Run with this:
@@ -23,7 +23,7 @@ Import-Module 'c:\ProgramData\Boxstarter\Boxstarter.Chocolatey\Boxstarter.Chocol
 <#
 Or all in two lines
 
-Set-ExecutionPolicy RemoteSigned -Force; if (-not (Test-Path $PROFILE)) { $directory = [IO.Path]::GetDirectoryName($PROFILE); if (-not (Test-Path $directory)) { Write-Host "Creating Profile Directory $directtory"; New-Item -ItemType Directory $directory | Out-Null }; "# Profile" > $PROFILE }; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1')); choco feature enable -n=allowGlobalConfirmation; choco feature enable -n=useRememberedArgumentsForUpgrades; cinst boxstarter; . $profile
+Set-ExecutionPolicy RemoteSigned -Force; if (-not (Test-Path $PROFILE)) { $directory = [IO.Path]::GetDirectoryName($PROFILE); if (-not (Test-Path $directory)) { Write-Host "Creating Profile Directory $directtory"; New-Item -ItemType Directory $directory | Out-Null }; "# Profile" > $PROFILE }; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1')); choco feature enable -n=allowGlobalConfirmation; choco feature enable -n=useRememberedArgumentsForUpgrades; choco install boxstarter; . $profile
 Import-Module 'c:\ProgramData\Boxstarter\Boxstarter.Chocolatey\Boxstarter.Chocolatey.psd1'; Install-BoxstarterPackage -PackageName https://gist.githubusercontent.com/ravensorb/b7a9fefaaa851d4d65da526ca83be2a6/raw/boxstarter-bare-w11.ps1 -Credential (Get-Credential -Message "Local Login" -UserName $env:USERNAME)
 #>
 
@@ -31,7 +31,7 @@ Import-Module 'c:\ProgramData\Boxstarter\Boxstarter.Chocolatey\Boxstarter.Chocol
 New-Item -Path "$env:userprofile\AppData\Local\ChocoCache" -ItemType directory -Force | Out-Null
 New-Item -Path "c:\temp" -ItemType directory -Force | Out-Null
 #$common = "--cacheLocation=`"$env:userprofile\AppData\Local\ChocoCache`""
-$common = "--cacheLocation='c:\temp'"
+$common = "-y --cacheLocation='c:\temp'"
 
 # NuGet package provider. Do this early as reboots are required
 
@@ -52,22 +52,6 @@ if (-not (Get-InstalledModule -Name PowerShellGet -ErrorAction SilentlyContinue)
     Invoke-Reboot
 }
 
-# Upgrade to latest version (> 2.2)
-if (Get-InstalledModule -Name PowerShellGet | Where-Object { $_.Version -le 2.2 } ) {
-    #Write-Host "Update-Module PowerShellGet"
-    
-    # Unload this first to avoid 
-    #Write-Host "Removing in-use modules"
-    #Remove-Module PowerShellGet -Force
-    #Remove-Module PackageManagement -Force
-    
-    # This fails due to "module 'PackageManagement' is currently in use" error. Don't think there's a way around this.
-    #PowerShellGet\Update-Module -Name PowerShellGet -Force
-
-    # Exit equivalent
-    #Invoke-Reboot
-}
-
 # https://github.com/felixrieseberg/windows-development-environment/blob/master/boxstarter
 # https://timdeschryver.dev/blog/how-i-have-set-up-my-new-windows-development-environment-in-2022#install-software-with-winget
 # Write-Host "Set-PSRepository"
@@ -77,23 +61,22 @@ if (Get-InstalledModule -Name PowerShellGet | Where-Object { $_.Version -le 2.2 
 Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol
 
 ## Terminal
-cinst -y microsoft-windows-terminal
-cinst -y oh-my-posh
+choco install microsoft-windows-terminal
+choco install oh-my-posh
 
 ## Editors
-cinst vscode-insiders -y
-choco pin add -n=vscode
-choco pin add -n="vscode.install"
+choco install vscode-insiders -y
+choco pin add -n=vscode-insiders
+# choco pin add -n="vscode-insiders.install"
 
 ## Git
-cinst git.install -y --params "'/NoShellIntegration /WindowsTerminalProfile /Symlinks /DefaultBranchName:main /Editor:VisualStudioCodeInsiders'"
+choco install git.install -y --params "'/NoShellIntegration /WindowsTerminalProfile /Symlinks /DefaultBranchName:main /Editor:VisualStudioCodeInsiders'"
 
 # Restart PowerShell / CMDer before moving on - or run
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
-
 # Windows features
-cinst TelnetClient -source windowsfeatures
+choco install TelnetClient -source windowsfeatures
 
 # Remove unwanted Store apps
 Get-AppxPackage Facebook.Facebook | Remove-AppxPackage -ErrorAction SilentlyContinue
@@ -126,47 +109,44 @@ Get-AppxPackage -AllUser -Name Microsoft.MSPaint | Remove-AppxPackage -ErrorActi
 Write-Host "Temp: $($env:temp)"
 
 ## PowerShell
-cinst powershell-core $common
-cinst powershellhere-elevated $common
+choco install powershell-core $common
+choco install powershellhere-elevated $common
 
 ## Browsers
-# cinst microsoft-edge-insider-dev --pre  $common
-# cinst microsoft-edge $common
+# choco install microsoft-edge-insider-dev --pre  $common
+# choco install microsoft-edge $common
 # choco pin add -n=edge
 
 ## Common
-cinst 7zip $common
-cinst paint.net $common
-cinst pingplotter $common
+choco install 7zip $common
+# choco install paint.net $common
+choco install pingplotter $common
+choco install sysinternals $common
 
-cinst rocolatey $common
+choco install rocolatey $common
 
-cinst git $common
-# cinst tortoisegit $common
-cinst windirstat $common
-cinst PDFXchangeEditor $common --params '"/NoDesktopShortcuts /NoUpdater"'
+choco install git $common
+# choco install tortoisegit $common
+choco install windirstat $common
+# choco install PDFXchangeEditor $common --params '"/NoDesktopShortcuts /NoUpdater"'
+
+## Office
+# choco install office365business $common --params='/exclude:"Access Groove Lync"'
+# choco install microsoft-teams.install $common
+# choco pin add -n="microsoft-teams.install" $common
 
 refreshenv
 
 if (Test-PendingReboot) { Invoke-Reboot }
 
-## Basics
-cinst -y 7zip.install $common
-cinst -y sysinternals $common
-
 # Hardware Specific
 if ((get-wmiobject Win32_ComputerSystem).manufacturer -like "*Dell*") {
-    cinst dellcommandupdate-uwp $common
+    choco install dellcommandupdate-uwp $common
 }
 
 if ((get-wmiobject Win32_ComputerSystem).manufacturer -like "*Lenovo*") {
-    cinst lenovo-thinkvantage-system-update $common
+    choco install lenovo-thinkvantage-system-update $common
 }
-
-## Office
-# cinst office365business $common --params='/exclude:"Access Groove Lync"'
-# cinst microsoft-teams.install $common
-# choco pin add -n="microsoft-teams.install" $common
 
 # Install-Module posh-git -AllowPrerelease -Force
 
@@ -180,6 +160,8 @@ Update-Help -ErrorAction SilentlyContinue
 Enable-RemoteDesktop
 
 ## Windows Update
-Install-WindowsUpdate -AcceptEula -GetUpdatesFromMS
+Install-WindowsUpdate -GetUpdatesFromMS
+
+if (Test-PendingReboot) { Invoke-Reboot }
 
 Enable-UAC
